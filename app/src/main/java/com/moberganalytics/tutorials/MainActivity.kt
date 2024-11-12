@@ -43,7 +43,8 @@ class MainActivity : ComponentActivity() {
             Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
 //                ArticleCard(modifier = Modifier.padding(innerPadding))
 //                TaskComplete(modifier = Modifier.padding(innerPadding))
-                Quadrant(modifier = Modifier.padding(innerPadding))
+//                Quadrant(modifier = Modifier.padding(innerPadding))
+                BusinessCard(modifier = Modifier.padding(innerPadding))
             }
         }
     }
