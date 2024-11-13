@@ -1,246 +1,299 @@
 package com.moberganalytics.tutorials
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material.icons.rounded.Share
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material3.Card
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.moberganalytics.tutorials.data.Dog
+import com.moberganalytics.tutorials.data.dogs
+import com.moberganalytics.tutorials.ui.theme.TutorialTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                ArticleCard(modifier = Modifier.padding(innerPadding))
-//                TaskComplete(modifier = Modifier.padding(innerPadding))
-                Quadrant(modifier = Modifier.padding(innerPadding))
+            TutorialTheme {
+                // A surface container using the 'background' color from the theme
+                Surface(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    WoofApp()
+                }
             }
         }
     }
 }
 
+/**
+ * Composable that displays an app bar and a list of dogs.
+ */
 @Composable
-fun BusinessCard(
-    modifier: Modifier = Modifier,
-) {
-    val appIcons = Icons.Rounded
+fun WoofApp() {
+    Scaffold(
+        topBar = {
+            WoofTopAppBar()
+        }
+    ) { it ->
+        LazyColumn(contentPadding = it) {
+            items(dogs) {
+                DogItem(
+                    dog = it,
+                    modifier = Modifier.padding(dimensionResource(R.dimen.padding_small))
+                )
+            }
+        }
+    }
+}
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
+/**
+ * Composable that displays a list item containing a dog icon and their information.
+ *
+ * @param dog contains the data that populates the list item
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+fun DogItem(
+    dog: Dog,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Card(
         modifier = modifier
-            .fillMaxHeight()
-            .background(Color(0xFFFFA000))
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(2f)
-                .fillMaxWidth()
+        Column(
+            modifier = Modifier
+                .animateContentSize(
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioHighBouncy,
+                        stiffness = Spring.StiffnessMedium
+                    )
+                )
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(dimensionResource(R.dimen.padding_small))
+            ) {
+                DogIcon(dog.imageResourceId)
+                DogInformation(dog.name, dog.age)
+                Spacer(Modifier.weight(1f))
+                DogItemButton(
+                    expanded = expanded,
+                    onClick = { expanded = !expanded },
+                )
+            }
+            if (expanded) {
+                DogHobby(
+                    dog.hobbies, modifier = Modifier.padding(
+                        start = dimensionResource(R.dimen.padding_medium),
+                        top = dimensionResource(R.dimen.padding_small),
+                        bottom = dimensionResource(R.dimen.padding_medium),
+                        end = dimensionResource(R.dimen.padding_medium)
+                    )
+                )
+            }
+        }
+    }
+}
+
+/**
+ * Composable that displays a button that is clickable and displays an expand more or an expand less
+ * icon.
+ *
+ * @param expanded represents whether the expand more or expand less icon is visible
+ * @param onClick is the action that happens when the button is clicked
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+private fun DogItemButton(
+    expanded: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+            contentDescription = stringResource(R.string.expand_button_content_description),
+            tint = MaterialTheme.colorScheme.primary
+        )
+    }
+}
+
+/**
+ * Composable that displays a Top Bar with an icon and text.
+ *
+ * @param modifier modifiers to set to this composable
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun WoofTopAppBar(modifier: Modifier = Modifier) {
+    CenterAlignedTopAppBar(
+        title = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Image(
-                    painter = painterResource(R.drawable.android_logo),
-                    contentDescription = null,
-                    modifier = Modifier.width(256.dp)
+                    modifier = Modifier
+                        .size(dimensionResource(R.dimen.image_size))
+                        .padding(dimensionResource(R.dimen.padding_small)),
+                    painter = painterResource(R.drawable.ic_woof_logo),
+
+                    // Content Description is not needed here - image is decorative, and setting a
+                    // null content description allows accessibility services to skip this element
+                    // during navigation.
+
+                    contentDescription = null
                 )
                 Text(
-                    text = stringResource(R.string.bc_name),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Text(
-                    text = stringResource(R.string.bc_title),
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(8.dp)
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.displayLarge
                 )
             }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = modifier.weight(1f),
-        ) {
-            Column() {
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Call, contentDescription = null)
-                    Text(text = stringResource(R.string.bc_phone))
-                }
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Share, contentDescription = null, modifier = Modifier.padding(end = 10.dp))
-                    Text(text = stringResource(R.string.bc_twitter))
-                }
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Email, contentDescription = null, modifier = Modifier.padding(end = 10.dp))
-                    Text(text = stringResource(R.string.bc_email))
-                }
-            }
-        }
+        },
+        modifier = modifier
+    )
+}
+
+/**
+ * Composable that displays a photo of a dog.
+ *
+ * @param dogIcon is the resource ID for the image of the dog
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+fun DogIcon(
+    @DrawableRes dogIcon: Int,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        modifier = modifier
+            .size(dimensionResource(R.dimen.image_size))
+            .padding(dimensionResource(R.dimen.padding_small))
+            .clip(MaterialTheme.shapes.small),
+        contentScale = ContentScale.Crop,
+        painter = painterResource(dogIcon),
+
+        // Content Description is not needed here - image is decorative, and setting a null content
+        // description allows accessibility services to skip this element during navigation.
+
+        contentDescription = null
+    )
+}
+
+/**
+ * Composable that displays a dog's name and age.
+ *
+ * @param dogName is the resource ID for the string of the dog's name
+ * @param dogAge is the Int that represents the dog's age
+ * @param modifier modifiers to set to this composable
+ */
+@Composable
+fun DogInformation(
+    @StringRes dogName: Int,
+    dogAge: Int,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(dogName),
+            style = MaterialTheme.typography.displayMedium,
+            modifier = Modifier.padding(top = dimensionResource(R.dimen.padding_small))
+        )
+        Text(
+            text = stringResource(R.string.years_old, dogAge),
+            style = MaterialTheme.typography.bodyLarge
+        )
     }
 }
 
+/**
+ * Composable that displays a dog's hobbies.
+ *
+ * @param dogHobby is the resource ID for the text string of the hobby to display
+ * @param modifier modifiers to set to this composable
+ */
 @Composable
-fun QuadrantCard(
-    title: String,
-    description: String,
-    background: Color,
+fun DogHobby(
+    @StringRes dogHobby: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(background)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            text = stringResource(R.string.about),
+            style = MaterialTheme.typography.labelSmall
         )
         Text(
-            text = description,
-            textAlign = TextAlign.Justify
+            text = stringResource(dogHobby),
+            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
 
+/**
+ * Composable that displays what the UI of the app looks like in light theme in the design tab.
+ */
+@Preview
 @Composable
-fun Quadrant(
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.weight(1f)) {
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_1),
-                description = stringResource(R.string.quadrant_1c),
-                background = Color(0xFFEADDFF),
-                modifier = Modifier.weight(1f)
-            )
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_2),
-                description = stringResource(R.string.quadrant_2c),
-                background = Color(0xFFD0BCFF),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(modifier = Modifier.weight(1f)) {
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_1),
-                description = stringResource(R.string.quadrant_1c),
-                background = Color(0xFFB69DF8),
-                modifier = Modifier.weight(1f)
-            )
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_2),
-                description = stringResource(R.string.quadrant_2c),
-                background = Color(0xFFF6EDFF),
-                modifier = Modifier.weight(1f)
-            )
-        }
+fun WoofPreview() {
+    TutorialTheme (darkTheme = false) {
+        WoofApp()
     }
 }
 
+/**
+ * Composable that displays what the UI of the app looks like in dark theme in the design tab.
+ */
+@Preview
 @Composable
-fun TaskComplete(
-    modifier: Modifier = Modifier,
-    completeStr: String = stringResource(R.string.task_complete),
-    message: String = stringResource(R.string.task_message),
-    completeIcon: Painter = painterResource(R.drawable.task_completed)
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painter = completeIcon,
-            contentDescription = null,
-        )
-        Text(
-            text = completeStr,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        Text(
-            text = message,
-            fontSize = 16.sp,
-        )
+fun WoofDarkThemePreview() {
+    TutorialTheme (darkTheme = true) {
+        WoofApp()
     }
-}
-
-@Composable
-fun ArticleCard(
-    modifier: Modifier = Modifier,
-    title: String = stringResource(R.string.article_title),
-    shortDesc: String = stringResource(R.string.article_short_desc),
-    longDesc: String = stringResource(R.string.article_long_desc),
-    banner: Painter = painterResource(R.drawable.article_bg),
-) {
-    Column(modifier = modifier) {
-        Image(
-            painter = banner,
-            contentDescription = "article banner",
-            contentScale = ContentScale.FillWidth
-        )
-        Text(
-            text = title,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-        Text(
-            text = shortDesc,
-            textAlign = TextAlign.Justify,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-        )
-        Text(
-            text= longDesc,
-            textAlign = TextAlign.Justify,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppPreview() {
-    BusinessCard()
 }
