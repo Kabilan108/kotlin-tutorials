@@ -4,244 +4,382 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Call
-import androidx.compose.material.icons.rounded.Email
-import androidx.compose.material.icons.rounded.Share
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.moberganalytics.tutorials.ui.theme.TutorialTheme
+import java.text.NumberFormat
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                ArticleCard(modifier = Modifier.padding(innerPadding))
-//                TaskComplete(modifier = Modifier.padding(innerPadding))
-//                Quadrant(modifier = Modifier.padding(innerPadding))
-                BusinessCard(modifier = Modifier.padding(innerPadding))
+            TutorialTheme {
+                TipTimeApp()
             }
         }
     }
 }
 
-@Composable
-fun BusinessCard(
-    modifier: Modifier = Modifier,
-) {
-    val appIcons = Icons.Rounded
+@VisibleForTesting
+internal fun calculateTip(amount: Double, tipPercent: Double = 15.0, roundUp: Boolean): String {
+    var tip = tipPercent / 100 * amount
+    if (roundUp) {
+        tip = kotlin.math.ceil(tip)
+    }
+    return NumberFormat.getCurrencyInstance().format(tip)
+}
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .fillMaxHeight()
-            .background(Color(0xFFFFA000))
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.weight(2f)
-                .fillMaxWidth()
+@Preview
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TipTimeApp() {
+
+    var inputAmount: String by remember { mutableStateOf("") }
+    // we import androidx.compose.runtime.[sg]etValue to allow us to get and set the
+    // value of this variable without using the MutableState.value property
+    val amount = inputAmount.toDoubleOrNull() ?: 0.0
+
+    var inputTip: String by remember { mutableStateOf("") }
+    val tipPercent = inputTip.toDoubleOrNull() ?: 0.0
+
+    var roundUp: Boolean by remember { mutableStateOf(false) }
+
+    val tip = calculateTip(amount, tipPercent, roundUp)
+
+    Scaffold (
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Tip Time",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    ) { innerPadding ->
+        Surface (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
+            color = MaterialTheme.colorScheme.background
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            Column (
+                modifier = Modifier
+                    .statusBarsPadding()
+                    .padding(horizontal = 40.dp)
+                    .verticalScroll(rememberScrollState())
+                    .safeDrawingPadding(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Image(
-                    painter = painterResource(R.drawable.android_logo),
-                    contentDescription = null,
-                    modifier = Modifier.width(256.dp)
+                Text (
+                    text  = stringResource(R.string.calculate_tip),
+                    modifier = Modifier
+                        .padding(bottom = 16.dp, top = 40.dp)
+                        .align(alignment = Alignment.Start)
                 )
-                Text(
-                    text = stringResource(R.string.bc_name),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 28.sp,
-                    modifier = Modifier.padding(8.dp)
+                EditNumberField(
+                    label = R.string.bill_amount,
+                    leadingIcon = R.drawable.money,
+                    value = inputAmount,
+                    onValueChange = { inputAmount = it },
+                    keyboardOpts = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next,
+                        // imeAction will configure the "submit" button on the keyboard
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 32.dp)
+                        .fillMaxWidth()
                 )
-                Text(
-                    text = stringResource(R.string.bc_title),
-                    fontSize = 20.sp,
-                    modifier = Modifier.padding(8.dp)
+                EditNumberField(
+                    label = R.string.how_was_the_service,
+                    leadingIcon = R.drawable.percent,
+                    value = inputTip,
+                    onValueChange = { inputTip = it },
+                    keyboardOpts = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done,
+                    ),
+                    modifier = Modifier
+                        .padding(bottom = 32.dp)
+                        .fillMaxWidth()
                 )
-            }
-        }
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-            modifier = modifier.weight(1f),
-        ) {
-            Column() {
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Call, contentDescription = null)
-                    Text(text = stringResource(R.string.bc_phone))
-                }
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Share, contentDescription = null, modifier = Modifier.padding(end = 10.dp))
-                    Text(text = stringResource(R.string.bc_twitter))
-                }
-                Row(modifier = Modifier.padding(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(appIcons.Email, contentDescription = null, modifier = Modifier.padding(end = 10.dp))
-                    Text(text = stringResource(R.string.bc_email))
-                }
+                RoundTheTipRow(
+                    roundUp = roundUp,
+                    onRoundUpChanged = { roundUp = it },
+                )
+                Spacer (modifier = Modifier.height(80.dp))
+                Text (
+                    text = stringResource(R.string.tip_amount, tip),
+                    style = MaterialTheme.typography.displaySmall,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
+/*
+    Composition -> description of the UI built by Jetpack Compose
+    when state changes, Compose re-executes the affected composable functions with the
+    new state -> update UI (i.e. recomposition)
+
+    Compose runs composables during *iinitial composition*
+    *Recomposition* -> Compose re-executes composables that may have changed due to data
+    changes -> updates the Composition to reflect changes
+    this is the only way to change the Composition after initial composition.
+
+    "State" and "MutableState" types make the state "observable" i.e. tracked by Compose
+    "State" -> immutable -> can only be read
+    "MutableState" -> can change
+    "mutableStateOf()" -> creates an observable "MutableState" object with some initial value
+      -> the value returned holds state, is mutable & observable (i.e. causes recomposition on change)
+      -> recomposition resets the state of the composable
+
+    "remember" -> a composable that let's you store a state value across recompositions
+
+    try to make composables stateless (or at least own as little state as possible)
+    by hoisting state to parent composables
+    -> this typically involves adding 2 args to a composable -> value & onValueChange
+       i.e. state & onStateChange
+ */
 @Composable
-fun QuadrantCard(
-    title: String,
-    description: String,
-    background: Color,
+fun EditNumberField(
+    @StringRes label: Int, // StringRes -> type-safety for string resources
+    @DrawableRes leadingIcon: Int,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardOpts: KeyboardOptions,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(background)
-            .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold,
-            fontSize = 16.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-        Text(
-            text = description,
-            textAlign = TextAlign.Justify
-        )
-    }
+    // Compose keeps track of composable that use state `.value` props to trigger recomps
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        singleLine = true,
+        label = { Text(stringResource(label)) },
+        leadingIcon = { Icon(painter = painterResource(id = leadingIcon), null) },
+        keyboardOptions = keyboardOpts,
+        modifier = modifier,
+    )
 }
 
 @Composable
-fun Quadrant(
-    modifier: Modifier = Modifier,
+fun RoundTheTipRow(
+    roundUp: Boolean,
+    onRoundUpChanged: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Row(modifier = Modifier.weight(1f)) {
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_1),
-                description = stringResource(R.string.quadrant_1c),
-                background = Color(0xFFEADDFF),
-                modifier = Modifier.weight(1f)
-            )
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_2),
-                description = stringResource(R.string.quadrant_2c),
-                background = Color(0xFFD0BCFF),
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Row(modifier = Modifier.weight(1f)) {
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_1),
-                description = stringResource(R.string.quadrant_1c),
-                background = Color(0xFFB69DF8),
-                modifier = Modifier.weight(1f)
-            )
-            QuadrantCard(
-                title = stringResource(R.string.quadrant_2),
-                description = stringResource(R.string.quadrant_2c),
-                background = Color(0xFFF6EDFF),
-                modifier = Modifier.weight(1f)
-            )
-        }
-    }
-}
-
-@Composable
-fun TaskComplete(
-    modifier: Modifier = Modifier,
-    completeStr: String = stringResource(R.string.task_complete),
-    message: String = stringResource(R.string.task_message),
-    completeIcon: Painter = painterResource(R.drawable.task_completed)
-) {
-    Column(
+    Row (
         modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(),
+            .size(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = stringResource(R.string.round_up_tip), modifier = modifier)
+        Switch(
+            checked = roundUp,
+            onCheckedChange = onRoundUpChanged,
+            modifier = modifier
+                .fillMaxWidth()
+                .wrapContentWidth(Alignment.End)
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LemonadeApp() {
+    var appState: Int by remember { mutableIntStateOf(1) }
+    var totalSqueezes: Int by remember { mutableIntStateOf(2) }
+    var squeezeCount: Int by remember { mutableIntStateOf(0) }
+
+    Scaffold (
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "Lemonade",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                colors = TopAppBarDefaults.largeTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                )
+            )
+        }
+    ) { innerPadding ->
+        Surface (
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .background(MaterialTheme.colorScheme.tertiaryContainer),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            when (appState) {
+                1 -> LemonTextAndImage(
+                    messageID = R.string.lemon_tree,
+                    imageID = R.drawable.lemon_tree,
+                    descID = R.string.lemon_tree_desc,
+                    onClick = {
+                        appState = 2
+                        totalSqueezes = (2..4).random()
+                    },
+                )
+                2 -> LemonTextAndImage(
+                    messageID = R.string.lemon_squeeze,
+                    imageID = R.drawable.lemon_squeeze,
+                    descID = R.string.lemon_squeeze_desc,
+                    onClick = {
+                        squeezeCount += 1
+                        if (squeezeCount == totalSqueezes) {
+                            squeezeCount = 0
+                            appState = 3
+                        }
+                    },
+                )
+                3 -> LemonTextAndImage(
+                    messageID = R.string.lemon_drink,
+                    imageID = R.drawable.lemon_drink,
+                    descID = R.string.lemon_drink_desc,
+                    onClick = { appState = 4 },
+                )
+                else -> LemonTextAndImage(
+                    messageID = R.string.lemon_restart,
+                    imageID = R.drawable.lemon_restart,
+                    descID = R.string.lemon_restart_desc,
+                    onClick = { appState = 1 },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun LemonTextAndImage(
+    messageID: Int,
+    imageID: Int,
+    descID: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column (
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+    ) {
+        Button(
+            onClick = onClick,
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            Image(
+                painter = painterResource(imageID),
+                contentDescription = stringResource(descID)
+            )
+        }
+        Spacer(modifier = Modifier.height(32.dp))
+        Text(text = stringResource(messageID))
+    }
+}
+
+@Composable
+fun DiceRollerApp() {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        DiceWithButtonAndImage(
+            modifier = Modifier
+                .fillMaxSize() // take up all the screen space
+                .wrapContentSize(align = Alignment.Center) // make the space at least as large as contents. if size is larger, use align to determine how to oarrange componenets within the space
+        )
+    }
+}
+
+@Composable
+fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
+    // composables are stateless by default -> can be recomposed at any time by the system
+    // "remember" -> composable that allows you to store "state"
+    //            -> requires a function to be passed, e.g. mutableStateOf which returns an observable
+    //            -> when its value changes, a recomp is triggered
+    var result: Int by remember { mutableIntStateOf(1) }
+    val imageResource = when (result) {
+        1 -> R.drawable.dice_1
+        2 -> R.drawable.dice_2
+        3 -> R.drawable.dice_3
+        4 -> R.drawable.dice_4
+        5 -> R.drawable.dice_5
+        else -> R.drawable.dice_6
+    }
+
+    Column  (
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            painter = completeIcon,
-            contentDescription = null,
+            painter = painterResource(imageResource),
+            contentDescription = result.toString()
         )
-        Text(
-            text = completeStr,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-        Text(
-            text = message,
-            fontSize = 16.sp,
-        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = {
+                result = (1..6).random()
+            }
+        ) {
+            Text(text = stringResource(R.string.roll))
+        }
     }
-}
-
-@Composable
-fun ArticleCard(
-    modifier: Modifier = Modifier,
-    title: String = stringResource(R.string.article_title),
-    shortDesc: String = stringResource(R.string.article_short_desc),
-    longDesc: String = stringResource(R.string.article_long_desc),
-    banner: Painter = painterResource(R.drawable.article_bg),
-) {
-    Column(modifier = modifier) {
-        Image(
-            painter = banner,
-            contentDescription = "article banner",
-            contentScale = ContentScale.FillWidth
-        )
-        Text(
-            text = title,
-            fontSize = 24.sp,
-            modifier = Modifier.padding(16.dp)
-        )
-        Text(
-            text = shortDesc,
-            textAlign = TextAlign.Justify,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp)
-        )
-        Text(
-            text= longDesc,
-            textAlign = TextAlign.Justify,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppPreview() {
-    BusinessCard()
 }

@@ -96,6 +96,12 @@ class SmartTV(deviceName: String) :
     // delegates -> instead of defining getter and setter, use RangeValidator to manage it
     // property delegate
     private var channel by RangeValidator(2, 0, 200)
+    // Delegation in Kotlin:
+    // - Allows class to implement interface by delegating to another object
+    // - Property delegation: delegates property's getter/setter to another object
+    // - In your example, 'channel' property uses RangeValidator as delegate
+    // - RangeValidator handles getter/setter, enforces value range (0-200)
+    // - 'by' keyword used to specify delegate
     // var channel = 1
     //     set(value) {
     //         if (value in 0..200) {

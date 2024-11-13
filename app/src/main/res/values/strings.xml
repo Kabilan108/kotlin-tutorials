@@ -1,24 +1,23 @@
 <resources>
     <string name="app_name">Tutorials</string>
-    <string name="article_title">Jetpack Compose tutorial</string>
-    <string name="article_short_desc">Jetpack Compose is a modern toolkit for building native Android UI. Compose simplifies and accelerates UI development on Android with less code, powerful tools, and intuitive Kotlin APIs. </string>
-    <string name="article_long_desc">In this tutorial, you build a simple UI component with declarative functions. You call Compose functions to say what elements you want and the Compose compiler does the rest. Compose is built around Composable functions. These functions let you define your app\'s UI programmatically because they let you describe how it should look and provide data dependencies, rather than focus on the process of the UI\'s construction, such as initializing an element and then attaching it to a parent. To create a Composable function, you add the @Composable annotation to the function name.</string>
 
-    <string name="task_complete">All tasks completed</string>
-    <string name="task_message">Nice work!</string>
+    <string name="roll">Roll</string>
 
-    <string name="quadrant_1">Text composable</string>
-    <string name="quadrant_1c">Displays text and follows the recommended Material Design guidelines.</string>
-    <string name="quadrant_2">Image composable</string>
-    <string name="quadrant_2c">Creates a composable that lays out and draws a given Painter class object.</string>
-    <string name="quadrant_3">Row composable</string>
-    <string name="quadrant_3c">A layout composable that places its children in a horizontal sequence.</string>
-    <string name="quadrant_4">Column composable</string>string>
-    <string name="quadrant_5c">A layout composable that places its children in a vertical sequence.</string>
+    <string name="lemon_tree">Tap the lemon tree to select a lemon</string>
+    <string name="lemon_tree_desc">Lemon tree</string>
 
-    <string name="bc_name">Tony K Okeke</string>
-    <string name="bc_title">Machine Learning Engineer</string>
-    <string name="bc_phone">+1 (646) 659 4319</string>
-    <string name="bc_twitter">kabilan108</string>
-    <string name="bc_email">tko@gmail.com</string>
+    <string name="lemon_squeeze">Keep tapping the lemon to squeeze it</string>
+    <string name="lemon_squeeze_desc">Lemon</string>
+
+    <string name="lemon_drink">Tap the lemonade to drink it</string>
+    <string name="lemon_drink_desc">Glass of lemonade</string>
+
+    <string name="lemon_restart">Tap the empty glass to start again</string>
+    <string name="lemon_restart_desc">Empty glass</string>
+
+    <string name="calculate_tip">Calculate Tip</string>
+    <string name="bill_amount">Bill Amount</string>
+    <string name="tip_amount">Tip Amount: %s</string>
+    <string name="how_was_the_service">Tip Percentage</string>
+    <string name="round_up_tip">Round up tip?</string>
 </resources>
