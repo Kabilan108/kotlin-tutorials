@@ -1,29 +1,21 @@
-Dessert Clicker app
-=====================
+Cupcake app
+=================================
 
-Code for Android Basics with Compose Codelab.
+This app contains an order flow for cupcakes with options for quantity, flavor, and pickup date.
+The order details get displayed on an order summary screen and can be shared to another app to
+send the order.
 
-Introduction
-------------
-
-Dessert Clicker is a game about making desserts.
-
-Press the button, make a dessert, earn the big bucks.
-
-You use this app in the course to explore the Android lifecycle and log messages to
-the Android console (Logcat).
 
 Pre-requisites
 --------------
-
-You need to know:
-- How to open, build, and run apps with Android Studio.
-- What an activity is, and how to create one in your app.
-- What the activity's onCreate() method does, and the kind of operations
-  that are performed in that method.
+* Experience with Kotlin syntax.
+* How to create and run a project in Android Studio.
+* How to create composable functions 
 
 
 Getting Started
 ---------------
-
-1. Download and run the app.
+1. Install Android Studio, if you don't already have it.
+2. Download the sample.
+3. Import the sample into Android Studio.
+4. Build and run the sample.
