@@ -1,29 +1,23 @@
-Inventory app
-==================================
-
-Solution code for Android Basics with Compose.
+Dessert Release App - Solution Code
+=================================
+Solution code for the Android Basics with Compose: Dessert Release app.
 
 Introduction
 ------------
-
-This app is an Inventory tracking app. Demos how to add, update, sell, and delete items from the local database.
-This app demonstrated the use of Android Jetpack component [Room](https://developer.android.com/training/data-storage/room) database.
-The app also leverages [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel),
-[Flow](https://developer.android.com/kotlin/flow),
-and [Navigation](https://developer.android.com/topic/libraries/architecture/navigation/).
+The Dessert Release app is a simple app which displays a collection of Android dessert releases. 
+This app is used to teach the concept of Preferences DataStore.
 
 Pre-requisites
 --------------
 
-You need to know:
-- How to create and use composables.
-- How to navigate between composables, and pass data between them.
-- How to use architecture components including ViewModel, Flow, StateFlow and StateUi.
-- How to use coroutines for long-running tasks.
-- SQLite database and the SQLite query language
-
+* Experience with Kotlin syntax.
+* How to create and run a project in Android Studio.
+* How to create composable functions
 
 Getting Started
 ---------------
 
-1. Download and run the app.
+1. Install Android Studio, if you don't already have it.
+2. Download the sample.
+3. Import the sample into Android Studio.
+4. Build and run the sample.
