@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.racetracker.ui.theme
 
-import androidx.compose.material3.Typography
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+package com.example.marsphotos.model
 
-// Set of Material typography styles to start with
-val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+
+/**
+ * This data class defines a Mars photo which includes an ID, and the image URL.
+ */
+@Serializable
+data class MarsPhoto(
+    val id: String,
+    @SerialName(value = "img_src") val imgSrc: String
 )

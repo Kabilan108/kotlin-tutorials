@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.racetracker
+
+package com.example.marsphotos
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -22,20 +23,19 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
-import com.example.racetracker.ui.RaceTrackerApp
-import com.example.racetracker.ui.theme.RaceTrackerTheme
+import com.example.marsphotos.ui.MarsPhotosApp
+import com.example.marsphotos.ui.theme.MarsPhotosTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContent {
-            RaceTrackerTheme {
-                // A surface container using the 'background' color from the theme
+            MarsPhotosTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    RaceTrackerApp()
+                    MarsPhotosApp()
                 }
             }
         }
