@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 pluginManagement {
     repositories {
         google()
@@ -27,5 +28,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Dessert Release"
+rootProject.name = "Blur-O-Matic"
 include(":app")
